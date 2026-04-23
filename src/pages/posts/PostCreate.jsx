@@ -18,15 +18,28 @@ function PostCreate() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    // TODO: Implementasi submit form
-    // Validasi: title dan body tidak boleh kosong (tampilkan pesan error jika kosong)
-    // Gunakan fungsi createPost dari api/posts.js
-    // Set loading = true sebelum request, false setelah selesai
-    // Setelah berhasil, redirect ke /posts menggunakan navigate
-    // Handle error jika request gagal
-  };
+  setError(null);
+
+  // validasi
+  if (!formData.title.trim() || !formData.body.trim()) {
+    setError("Judul dan konten tidak boleh kosong");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    await createPost(formData);
+
+    navigate("/posts");
+  } catch (err) {
+    setError(err.response?.data?.message || "Gagal membuat post");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div style={styles.container}>
