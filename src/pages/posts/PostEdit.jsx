@@ -13,22 +13,62 @@ function PostEdit() {
   // TODO: Fetch data post berdasarkan `id` saat komponen pertama kali di-render
   // Isi formData dengan data yang sudah ada (title dan body dari API)
   // Handle loading dan error state
+  useEffect(() => {
+  const fetchPost = async () => {
+    try {
+      setLoading(true);
+      const data = await getPostById(id);
+      setFormData({
+        title: data.title || "",
+        body: data.body || "",
+      });
+    } catch (err) {
+      setError(err.response?.data?.message || "Gagal mengambil data post");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchPost();
+}, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  
     // TODO: Implementasi update post
     // Validasi: title dan body tidak boleh kosong
     // Gunakan fungsi updatePost dari api/posts.js dengan parameter (id, formData)
     // Set submitting = true sebelum request, false setelah selesai
     // Setelah berhasil, redirect ke /posts/:id (halaman detail post)
     // Handle error jika request gagal
-  };
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  setError(null);
+
+  // validasi
+  if (!formData.title.trim() || !formData.body.trim()) {
+    setError("Judul dan konten tidak boleh kosong");
+    return;
+  }
+
+  try {
+    setSubmitting(true);
+
+    await updatePost(id, formData);
+
+    navigate(`/posts/${id}`, { state: { updatedPost: formData } });
+
+  } catch (err) {
+    setError(err.response?.data?.message || "Gagal mengupdate post");
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   if (loading) return <div style={styles.center}>Loading...</div>;
   if (error && !formData.title)
