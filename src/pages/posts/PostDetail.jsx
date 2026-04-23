@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { getPostById, deletePost } from "../../api/posts";
+import { useLocation } from "react-router-dom";
 
 function PostDetail() {
   const { id } = useParams();
@@ -12,13 +13,37 @@ function PostDetail() {
   // TODO: Fetch single post berdasarkan `id` dari useParams()
   // Gunakan fungsi getPostById dari api/posts.js
   // Handle loading dan error state
+  useEffect(() => {
+  const fetchPost = async () => {
+    try {
+      setLoading(true);
+      const data = await getPostById(id);
+      setPost(data);
+    } catch (err) {
+      setError(err.response?.data?.message || "Gagal mengambil data post");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchPost();
+}, [id]);
 
   const handleDelete = async () => {
     if (!window.confirm("Yakin ingin menghapus post ini?")) return;
-
-    // TODO: Implementasi delete post berdasarkan id
+     // TODO: Implementasi delete post berdasarkan id
     // Setelah berhasil, redirect ke /posts menggunakan navigate
     // Handle error jika gagal
+    try {
+  await deletePost(id);
+  alert("Post berhasil dihapus");
+  navigate("/posts");
+} catch (err) {
+  setError(err.response?.data?.message || "Gagal menghapus post");
+}
+
+   
+    
   };
 
   if (loading) return <div style={styles.center}>Loading...</div>;
