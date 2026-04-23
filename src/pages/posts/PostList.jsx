@@ -10,6 +10,21 @@ function PostList() {
   // TODO: Fetch posts saat komponen pertama kali di-render menggunakan useEffect
   // Gunakan fungsi getPosts dari api/posts.js
   // Handle loading state dan error state dengan benar
+  useEffect(() => {
+  const fetchPosts = async () => {
+    try {
+      setLoading(true);
+      const data = await getPosts();
+      setPosts(data);
+    } catch (err) {
+      setError(err.response?.data?.message || "Gagal mengambil data posts");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchPosts();
+}, []);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Yakin ingin menghapus post ini?")) return;
@@ -18,6 +33,14 @@ function PostList() {
     // Gunakan fungsi deletePost dari api/posts.js
     // Setelah berhasil, hapus post dari state posts (filter)
     // Handle error jika gagal
+    try {
+  await deletePost(id);
+
+  // hapus dari state tanpa reload
+  setPosts((prev) => prev.filter((post) => post.id !== id));
+} catch (err) {
+  setError(err.response?.data?.message || "Gagal menghapus post");
+}
   };
 
   if (loading) return <div style={styles.center}>Loading posts...</div>;
